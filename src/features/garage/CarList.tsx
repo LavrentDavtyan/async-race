@@ -1,4 +1,7 @@
 import React from "react";
+import "./CarList.css";
+import { FaCar, FaPlay, FaStop, FaPen, FaTrash } from "react-icons/fa";
+
 
 type Car = {
   id: number;
@@ -6,40 +9,33 @@ type Car = {
   color: string;
 };
 
-const mockCars: Car[] = [
-  { id: 1, name: "Mustang", color: "#ff0000" },
-  { id: 2, name: "Tesla", color: "#00ff00" },
-  { id: 3, name: "BMW", color: "#0000ff" },
-];
-
-const CarList: React.FC = () => {
+const CarList: React.FC<{ cars: Car[] }> = ({ cars }) => {
   return (
     <div className="space-y-4">
-      {mockCars.map((car) => (
+      {cars.map((car) => (
         <div
           key={car.id}
-          className="flex items-center justify-between border rounded p-3"
+          className="car-row"
         >
-          <div className="flex items-center gap-4">
-            <div
-              className="w-12 h-6 rounded"
-              style={{ backgroundColor: car.color }}
-            />
+          <div className="car-info">
+
+          <FaCar style={{ color: car.color }} className="car-icon" />
             <span className="font-medium">{car.name}</span>
           </div>
           <div className="flex gap-2">
-            <button>
-              Start
+            <button className="btn btn-start">
+              <FaPlay /> Start
             </button>
-            <button>
-              Stop
+            <button className="btn btn-stop">
+              <FaStop /> Stop
             </button>
-            <button>
-              Edit
+            <button className="btn btn-edit">
+              <FaPen /> Edit
             </button>
-            <button >
-              Delete
+            <button className="btn btn-delete">
+              <FaTrash /> Delete
             </button>
+
           </div>
         </div>
       ))}

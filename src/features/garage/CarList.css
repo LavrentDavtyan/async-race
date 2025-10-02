@@ -1,0 +1,30 @@
+.car-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 0.5rem 1rem;
+}
+
+.car-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.car-icon {
+  color: #ff4cff;
+  font-size: 1.5rem;
+  filter: drop-shadow(0 0 4px #ff4cff);
+}
+
+.car-name {
+  color: #fff;
+  font-size: 1.25rem;
+  text-shadow: 0 0 5px #00f5ff;
+}
+
+
+
+

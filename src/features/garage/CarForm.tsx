@@ -1,14 +1,29 @@
 import React, { useState } from "react";
 
-const CarForm: React.FC = () => {
+type CarFormProps = {
+  onCarCreated?: (car: { id: number; name: string; color: string }) => void;
+};
+
+const CarForm: React.FC<CarFormProps> = ({ onCarCreated }) => {
   const [name, setName] = useState("");
   const [color, setColor] = useState("#000000");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Car created:", { name, color });
-    setName("");
-    setColor("#000000");
+    try {
+      const res = await fetch("http://localhost:3000/garage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, color }),
+      });
+      const createdCar = await res.json();
+      onCarCreated?.(createdCar); 
+
+      setName("");
+      setColor("#000000");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -19,6 +34,7 @@ const CarForm: React.FC = () => {
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="border p-2 rounded w-48"
+        required
       />
       <input
         type="color"
