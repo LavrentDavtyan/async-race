@@ -1,6 +1,7 @@
 import React from "react";
 import "./CarList.css";
 import { FaCar, FaPlay, FaStop, FaPen, FaTrash } from "react-icons/fa";
+import { Car } from "../../api/garage";
 
 type CarListProps = {
   cars: Car[];
