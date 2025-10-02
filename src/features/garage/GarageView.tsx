@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import CarForm from "./CarForm";
+// GarageView.tsx
+import React, { useState, useEffect } from "react";
 import CarList from "./CarList";
+import CarForm from "./CarForm";
 
 type Car = {
   id: number;
@@ -10,8 +11,8 @@ type Car = {
 
 const GarageView: React.FC = () => {
   const [cars, setCars] = useState<Car[]>([]);
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
 
-  // fetch initial cars
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -25,24 +26,54 @@ const GarageView: React.FC = () => {
     fetchCars();
   }, []);
 
+  const handleDelete = async (id: number) => {
+    await fetch(`http://localhost:3000/garage/${id}`, { method: "DELETE" });
+    setCars((prevCars) => prevCars.filter((car) => car.id !== id));
+  };
+
+  const handleSaveCar = async (car: Car) => {
+    if (car.id) {
+      // update existing
+      const res = await fetch(`http://localhost:3000/garage/${car.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(car),
+      });
+      const updated = await res.json();
+      setCars((prev) =>
+        prev.map((c) => (c.id === updated.id ? updated : c))
+      );
+      setSelectedCar(null);
+    } else {
+      // create new
+      const res = await fetch("http://localhost:3000/garage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(car),
+      });
+      const created = await res.json();
+      setCars((prev) => [...prev, created]);
+    }
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Garage</h1>
 
-      {/* Pass setCars down so CarForm can add new cars */}
-      <CarForm onCarCreated={(car) => setCars((prev) => [...prev, car])} />
+      <CarForm
+        key={selectedCar?.id || "new"}
+        onSave={handleSaveCar}
+        selectedCar={selectedCar}
+      />
 
-      {/* Race controls */}
       <div className="flex gap-4 my-4">
         <button>Start Race</button>
         <button>Reset Race</button>
         <button>Generate 100 Cars</button>
       </div>
 
-      {/* Pass cars down to CarList */}
-      <CarList cars={cars} />
+      <CarList cars={cars} onDelete={handleDelete} onEdit={setSelectedCar} />
 
-      {/* Pagination */}
       <div className="mt-4 flex justify-center gap-2">
         <button>Prev</button>
         <span>Page 1 of 10</span>

@@ -1,29 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-type CarFormProps = {
-  onCarCreated?: (car: { id: number; name: string; color: string }) => void;
+type Car = {
+  id?: number;
+  name: string;
+  color: string;
 };
 
-const CarForm: React.FC<CarFormProps> = ({ onCarCreated }) => {
+type CarFormProps = {
+  onSave: (car: Car) => void;
+  selectedCar?: Car | null;
+};
+
+const CarForm: React.FC<CarFormProps> = ({ onSave, selectedCar }) => {
   const [name, setName] = useState("");
   const [color, setColor] = useState("#000000");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:3000/garage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, color }),
-      });
-      const createdCar = await res.json();
-      onCarCreated?.(createdCar); 
-
+  useEffect(() => {
+    if (selectedCar) {
+      setName(selectedCar.name);
+      setColor(selectedCar.color);
+    } else {
       setName("");
       setColor("#000000");
-    } catch (err) {
-      console.error(err);
     }
+  }, [selectedCar]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({ id: selectedCar?.id, name, color });
   };
 
   return (
@@ -42,7 +46,9 @@ const CarForm: React.FC<CarFormProps> = ({ onCarCreated }) => {
         onChange={(e) => setColor(e.target.value)}
         className="w-12 h-10 cursor-pointer"
       />
-      <button type="submit">Create Car</button>
+      <button type="submit">
+        {selectedCar ? "Update Car" : "Create Car"}
+      </button>
     </form>
   );
 };
