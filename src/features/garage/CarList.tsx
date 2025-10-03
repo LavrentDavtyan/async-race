@@ -1,7 +1,9 @@
+// CarList.tsx
 import React from "react";
 import "./CarList.css";
 import { FaCar, FaPlay, FaStop, FaPen, FaTrash } from "react-icons/fa";
 import { Car } from "../../api/garage";
+
 
 type CarListProps = {
   cars: Car[];
@@ -19,19 +21,10 @@ const CarList: React.FC<CarListProps> = ({ cars, onDelete, onEdit }) => {
             <span className="font-medium">{car.name}</span>
           </div>
           <div className="flex gap-2">
-            <button className="btn btn-start">
-              <FaPlay /> Start
-            </button>
-            <button className="btn btn-stop">
-              <FaStop /> Stop
-            </button>
             <button className="btn btn-edit" onClick={() => onEdit(car)}>
               <FaPen /> Edit
             </button>
-            <button
-              className="btn btn-delete"
-              onClick={() => onDelete(car.id)}
-            >
+            <button className="btn btn-delete" onClick={() => onDelete(car.id)}>
               <FaTrash /> Delete
             </button>
           </div>

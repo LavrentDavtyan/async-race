@@ -1,4 +1,3 @@
-// GarageView.tsx
 import React, { useState, useEffect } from "react";
 import CarList from "./CarList";
 import CarForm from "./CarForm";
@@ -13,6 +12,7 @@ const GarageView: React.FC = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
 
+  // Load cars
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -26,59 +26,52 @@ const GarageView: React.FC = () => {
     fetchCars();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    await fetch(`http://localhost:3000/garage/${id}`, { method: "DELETE" });
-    setCars((prevCars) => prevCars.filter((car) => car.id !== id));
-  };
-
-  const handleSaveCar = async (car: Car) => {
+  // Save car (create or update)
+  const handleSave = async (car: Car) => {
     if (car.id) {
-      // update existing
+      // ✅ Update existing car
       const res = await fetch(`http://localhost:3000/garage/${car.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(car),
       });
-      const updated = await res.json();
+      const updatedCar = await res.json();
       setCars((prev) =>
-        prev.map((c) => (c.id === updated.id ? updated : c))
+        prev.map((c) => (c.id === updatedCar.id ? updatedCar : c))
       );
-      setSelectedCar(null);
+      setSelectedCar(null); // clear edit mode
     } else {
-      // create new
+      // ✅ Create new car
       const res = await fetch("http://localhost:3000/garage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(car),
       });
-      const created = await res.json();
-      setCars((prev) => [...prev, created]);
+      const newCar = await res.json();
+      setCars((prev) => [...prev, newCar]);
     }
+  };
+
+  // Delete car
+  const handleDelete = async (id: number) => {
+    await fetch(`http://localhost:3000/garage/${id}`, {
+      method: "DELETE",
+    });
+    setCars((prev) => prev.filter((car) => car.id !== id));
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Garage</h1>
 
-      <CarForm
-        key={selectedCar?.id || "new"}
-        onSave={handleSaveCar}
-        selectedCar={selectedCar}
+      {/* Form handles both create & update */}
+      <CarForm onSave={handleSave} selectedCar={selectedCar} />
+
+      <CarList
+        cars={cars}
+        onDelete={handleDelete}
+        onEdit={(car) => setSelectedCar(car)} // ✅ pass edit handler
       />
-
-      <div className="flex gap-4 my-4">
-        <button>Start Race</button>
-        <button>Reset Race</button>
-        <button>Generate 100 Cars</button>
-      </div>
-
-      <CarList cars={cars} onDelete={handleDelete} onEdit={setSelectedCar} />
-
-      <div className="mt-4 flex justify-center gap-2">
-        <button>Prev</button>
-        <span>Page 1 of 10</span>
-        <button>Next</button>
-      </div>
     </div>
   );
 };
