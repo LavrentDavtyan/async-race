@@ -1,4 +1,3 @@
-// CarForm
 import React, { useState, useEffect } from "react";
 
 type Car = {

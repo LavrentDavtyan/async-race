@@ -8,11 +8,21 @@ type Car = {
   color: string;
 };
 
+
 const GarageView: React.FC = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [runningCars, setRunningCars] = useState<{ [key: number]: boolean }>({});
 
-  // Load cars
+  const handleStart = (id: number) => {
+    setRunningCars((prev) => ({ ...prev, [id]: true }));
+  };
+
+  const handleStop = (id: number) => {
+    setRunningCars((prev) => ({ ...prev, [id]: false }));
+  };
+
+
   useEffect(() => {
     const fetchCars = async () => {
       try {
@@ -26,10 +36,9 @@ const GarageView: React.FC = () => {
     fetchCars();
   }, []);
 
-  // Save car (create or update)
+
   const handleSave = async (car: Car) => {
     if (car.id) {
-      // ✅ Update existing car
       const res = await fetch(`http://localhost:3000/garage/${car.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -39,9 +48,8 @@ const GarageView: React.FC = () => {
       setCars((prev) =>
         prev.map((c) => (c.id === updatedCar.id ? updatedCar : c))
       );
-      setSelectedCar(null); // clear edit mode
+      setSelectedCar(null);
     } else {
-      // ✅ Create new car
       const res = await fetch("http://localhost:3000/garage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,7 +60,6 @@ const GarageView: React.FC = () => {
     }
   };
 
-  // Delete car
   const handleDelete = async (id: number) => {
     await fetch(`http://localhost:3000/garage/${id}`, {
       method: "DELETE",
@@ -64,13 +71,15 @@ const GarageView: React.FC = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Garage</h1>
 
-      {/* Form handles both create & update */}
       <CarForm onSave={handleSave} selectedCar={selectedCar} />
 
       <CarList
         cars={cars}
         onDelete={handleDelete}
-        onEdit={(car) => setSelectedCar(car)} // ✅ pass edit handler
+        onEdit={(car) => setSelectedCar(car)}
+        runningCars={runningCars}
+        onStart={handleStart}
+        onStop={handleStop}
       />
     </div>
   );
